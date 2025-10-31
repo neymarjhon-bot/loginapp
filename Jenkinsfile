@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.8.8'
+        maven 'Maven '
     }
 
     stages {
         stage('Checkout') {
-            steps {
+            steps {3.6.3
                 checkout scm
             }
         }
@@ -31,6 +31,7 @@ pipeline {
         }
     }
 }
+
 
 
 

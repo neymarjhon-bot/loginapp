@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven '
+        maven 'Maven 3.6.3'
     }
 
     stages {
         stage('Checkout') {
-            steps {3.6.3'
+            steps {
                 checkout scm
+                echo "Código descargado desde GitHub correctamente."
             }
         }
 
@@ -24,10 +25,19 @@ pipeline {
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Archive') {
             steps {
                 archiveArtifacts artifacts: 'target/*.war, target/*.jar', fingerprint: true
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Compilación completada con éxito.'
+        }
+        failure {
+            echo '❌ Error en la compilación.'
         }
     }
 }

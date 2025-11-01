@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_SERVER = 'jfrog-server'
-        ARTIFACTORY_REPO = 'loginapp-repo'
+        ARTIFACTORY_SERVER = 'jfrog-server'     // nombre del servidor configurado en Jenkins
+        ARTIFACTORY_REPO = 'loginapp-repo'      // nombre del repositorio en JFrog
     }
 
     stages {
@@ -31,16 +31,18 @@ pipeline {
                 script {
                     def server = Artifactory.server(env.ARTIFACTORY_SERVER)
                     def buildInfo = Artifactory.newBuildInfo()
+
                     echo "📦 Subiendo artefacto JAR a JFrog Artifactory..."
 
                     server.upload(spec: """{
                         "files": [{
-                            "pattern": "target/*.jar",
+                            "pattern": "target/*jar-with-dependencies.jar",
                             "target": "${ARTIFACTORY_REPO}/"
                         }]
                     }""", buildInfo: buildInfo)
 
                     server.publishBuildInfo(buildInfo)
+
                     echo "✅ JAR subido correctamente a ${ARTIFACTORY_REPO}"
                 }
             }
@@ -56,6 +58,5 @@ pipeline {
         }
     }
 }
-
 
 

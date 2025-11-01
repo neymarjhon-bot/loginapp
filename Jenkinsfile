@@ -2,21 +2,21 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'
-        jdk 'JDK17'
+        jdk 'jdk21'          // Nombre del JDK configurado en Jenkins
+        maven 'maven3'       // Nombre de tu instalación Maven
     }
 
     environment {
-        ARTIFACTORY_SERVER = 'jfrog-server'     // nombre del servidor configurado en Jenkins
-        ARTIFACTORY_REPO = 'loginapp-repo'      // nombre del repositorio en JFrog
+        ARTIFACTORY = 'jfrog-local'  // Credencial de JFrog configurada en Jenkins
+        REPO = 'loginapp-repo'       // Repositorio en Artifactory
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'jfrog-local',
-                    url: 'https://github.com/neymarjhon-bot/loginapp.git'
+                    url: 'https://github.com/neymarjhon-bot/loginapp.git',
+                    credentialsId: "${ARTIFACTORY}"
             }
         }
 
@@ -29,21 +29,18 @@ pipeline {
         stage('Subir JAR a JFrog') {
             steps {
                 script {
-                    def server = Artifactory.server(env.ARTIFACTORY_SERVER)
+                    def server = Artifactory.server("${ARTIFACTORY}")
                     def buildInfo = Artifactory.newBuildInfo()
-
-                    echo "📦 Subiendo artefacto JAR a JFrog Artifactory..."
-
-                    server.upload(spec: """{
+                    def uploadSpec = """{
                         "files": [{
-                            "pattern": "target/*jar-with-dependencies.jar",
-                            "target": "${ARTIFACTORY_REPO}/"
+                            "pattern": "target/*.jar",
+                            "target": "${REPO}/"
                         }]
-                    }""", buildInfo: buildInfo)
-
+                    }"""
+                    echo "📦 Subiendo artefacto a JFrog Artifactory..."
+                    server.upload(spec: uploadSpec)
                     server.publishBuildInfo(buildInfo)
-
-                    echo "✅ JAR subido correctamente a ${ARTIFACTORY_REPO}"
+                    echo "✅ JAR subido correctamente a ${REPO}"
                 }
             }
         }
@@ -51,12 +48,10 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Pipeline completado con éxito. JAR disponible en Artifactory."
+            echo "🎉 Pipeline completado con éxito. JAR disponible en JFrog."
         }
         failure {
             echo "❌ Error durante la construcción o subida a JFrog."
         }
     }
 }
-
-

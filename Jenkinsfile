@@ -2,52 +2,59 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven3' // Asegúrate que coincida con tu instalación en Jenkins
+        maven 'maven3' // debe coincidir con el nombre configurado en Jenkins → Global Tool Configuration
     }
 
     environment {
-        // Nombre del servidor configurado en "Manage Jenkins → Configure System"
+        // ID del servidor configurado en Jenkins → Configuración del sistema → JFrog Platform
         ARTIFACTORY_SERVER = 'jfrog-local'
-        // Nombre del repositorio creado en Artifactory
-        TARGET_REPO = 'loginapp-repo'
+        // Nombre del repositorio en JFrog
+        ARTIFACTORY_REPO = 'loginapp-repo'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    credentialsId: 'jfrog-local', // o el ID de tu credencial de GitHub en Jenkins
+                    url: 'https://github.com/neymarjhon-bot/loginapp.git'
             }
         }
 
-        stage('Build with Maven') {
+        stage('Compilar con Maven') {
             steps {
                 script {
-                    if (isUnix()) {
-                        sh 'mvn clean package -DskipTests'
-                    } else {
-                        bat 'mvn clean package -DskipTests'
-                    }
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
 
-        stage('Upload Artifact to JFrog') {
+        stage('Subir artefacto a JFrog') {
             steps {
                 script {
-                    // Obtener la conexión configurada
-                    def server = Artifactory.server("${ARTIFACTORY_SERVER}")
+                    // Conexión con JFrog configurado en Jenkins
+                    def server = Artifactory.server(env.ARTIFACTORY_SERVER)
 
-                    // Definir qué subir y a dónde
+                    // Crear objeto con información de build
+                    def buildInfo = Artifactory.newBuildInfo()
+                    buildInfo.env.capture = true
+
+                    // Definir qué subir (archivo WAR)
                     def uploadSpec = """{
                         "files": [{
                             "pattern": "target/*.war",
-                            "target": "${TARGET_REPO}/"
+                            "target": "${env.ARTIFACTORY_REPO}/",
+                            "props": "build.name=loginapp;build.number=${env.BUILD_NUMBER}"
                         }]
                     }"""
 
-                    // Subir artefacto y registrar información del build
-                    server.upload spec: uploadSpec
-                    server.publishBuildInfo()
+                    echo "📦 Subiendo artefacto a JFrog Artifactory..."
+                    server.upload(spec: uploadSpec, buildInfo: buildInfo)
+
+                    // Publicar la información del build
+                    server.publishBuildInfo(buildInfo)
+                    echo "✅ Artefacto subido correctamente a ${env.ARTIFACTORY_REPO}"
                 }
             }
         }
@@ -55,16 +62,13 @@ pipeline {
 
     post {
         success {
-            echo '✅ Build completado y artefacto subido correctamente a JFrog Artifactory.'
+            echo "🎉 Pipeline completado exitosamente. WAR disponible en JFrog."
         }
         failure {
-            echo '❌ Error durante la construcción o subida a JFrog.'
+            echo "❌ Error durante la construcción o subida a JFrog."
         }
     }
 }
-
-
-
 
 
 

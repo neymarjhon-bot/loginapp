@@ -2,18 +2,24 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.6.3'
+        maven 'Maven 3.6.3' // Asegúrate que coincida con tu instalación en Jenkins
+    }
+
+    environment {
+        // Nombre del servidor configurado en "Manage Jenkins → Configure System"
+        ARTIFACTORY_SERVER = 'jfrog-local'
+        // Nombre del repositorio creado en Artifactory
+        TARGET_REPO = 'loginapp-repo'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo "Código descargado desde GitHub correctamente."
             }
         }
 
-        stage('Build') {
+        stage('Build with Maven') {
             steps {
                 script {
                     if (isUnix()) {
@@ -25,25 +31,37 @@ pipeline {
             }
         }
 
-        stage('Archive') {
+        stage('Upload Artifact to JFrog') {
             steps {
-                archiveArtifacts artifacts: 'target/*.war, target/*.jar', fingerprint: true
+                script {
+                    // Obtener la conexión configurada
+                    def server = Artifactory.server("${ARTIFACTORY_SERVER}")
+
+                    // Definir qué subir y a dónde
+                    def uploadSpec = """{
+                        "files": [{
+                            "pattern": "target/*.war",
+                            "target": "${TARGET_REPO}/"
+                        }]
+                    }"""
+
+                    // Subir artefacto y registrar información del build
+                    server.upload spec: uploadSpec
+                    server.publishBuildInfo()
+                }
             }
         }
     }
 
     post {
         success {
-            echo '✅ Compilación completada con éxito.'
+            echo '✅ Build completado y artefacto subido correctamente a JFrog Artifactory.'
         }
         failure {
-            echo '❌ Error en la compilación.'
+            echo '❌ Error durante la construcción o subida a JFrog.'
         }
     }
 }
-
-
-
 
 
 

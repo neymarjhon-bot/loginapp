@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.6.3' // Asegúrate que coincida con tu instalación en Jenkins
+        maven 'Maven3' // Asegúrate que coincida con tu instalación en Jenkins
     }
 
     environment {
@@ -62,6 +62,7 @@ pipeline {
         }
     }
 }
+
 
 
 

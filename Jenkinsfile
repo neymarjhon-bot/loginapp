@@ -2,56 +2,42 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk21'          // Nombre del JDK configurado en Jenkins
-        maven 'maven3'       // Nombre de tu instalación Maven
-    }
-
-    environment {
-        ARTIFACTORY = 'jfrog-local'  // Credencial de JFrog configurada en Jenkins
-        REPO = 'loginapp-repo'       // Repositorio en Artifactory
+        maven 'maven3'
+        jdk 'jdk11'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/neymarjhon-bot/loginapp.git',
-                    credentialsId: "${ARTIFACTORY}"
+                    url: 'https://github.com/tu_usuario/tu_repo.git'
             }
         }
 
-        stage('Compilar y Empaquetar') {
+        stage('Build') {
             steps {
-                bat 'mvn clean package -DskipTests'
+                sh 'mvn clean install -DskipTests'
             }
         }
 
-        stage('Subir JAR a JFrog') {
+        stage('Run Tests') {
             steps {
-                script {
-                    def server = Artifactory.server("${ARTIFACTORY}")
-                    def buildInfo = Artifactory.newBuildInfo()
-                    def uploadSpec = """{
-                        "files": [{
-                            "pattern": "target/*.jar",
-                            "target": "${REPO}/"
-                        }]
-                    }"""
-                    echo "📦 Subiendo artefacto a JFrog Artifactory..."
-                    server.upload(spec: uploadSpec)
-                    server.publishBuildInfo(buildInfo)
-                    echo "✅ JAR subido correctamente a ${REPO}"
-                }
+                sh 'mvn test'
             }
         }
+
+        stage('Generate Reports') {
+            steps {
+                sh 'mvn verify'
+            }
+        }
+
     }
 
     post {
-        success {
-            echo "🎉 Pipeline completado con éxito. JAR disponible en JFrog."
-        }
-        failure {
-            echo "❌ Error durante la construcción o subida a JFrog."
+        always {
+            archiveArtifacts artifacts: 'target/cucumber-report/**'
         }
     }
 }

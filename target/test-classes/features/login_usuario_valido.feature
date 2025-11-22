@@ -1,10 +1,7 @@
-Feature: Login de ejecutivo con credenciales válidas
-  Como ejecutivo del sistema
-  Quiero ingresar con un RUT válido
-  Para acceder al menú principal del sistema
-
-  Scenario: Ingreso con usuario válido registrado en la base de datos
-    Dado que el usuario abre el navegador
-    Y ingresa a la pagina de login
-    Cuando ingresa el usuario valido
-    Entonces accede al menu principal
+Característica: Login válido
+  Escenario: Login exitoso con credenciales correctas
+    Dado que abro el navegador y accedo a la página de login para credenciales válidas
+    Cuando ingreso el nombre de usuario "usuarioCorrecto"
+    Y ingreso la contraseña "passwordCorrecto"
+    Y presiono el botón de ingresar con credenciales válidas
+    Entonces debo ver la página del menú principal

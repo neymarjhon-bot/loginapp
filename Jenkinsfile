@@ -2,22 +2,22 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven3'
         jdk 'jdk21'
+        maven 'maven3'
     }
 
     stages {
-
-        stage('Checkout') {
+        stage('Checkout code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/tu_usuario/tu_repo.git'
+                    credentialsId: 'github-token',
+                    url: 'https://github.com/neymarjhon-bot/loginapp.git'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                sh 'mvn clean install'
             }
         }
 
@@ -29,15 +29,14 @@ pipeline {
 
         stage('Generate Reports') {
             steps {
-                sh 'mvn verify'
+                sh 'mvn surefire-report:report'
             }
         }
-
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'target/cucumber-report/**'
+            archiveArtifacts artifacts: '**/target/surefire-reports/*.html', fingerprint: true
         }
     }
 }

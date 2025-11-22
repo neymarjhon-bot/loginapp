@@ -2,34 +2,34 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk21'
-        maven 'maven3'
+        jdk 'jdk21'        // Debe existir en Manage Jenkins → Global Tool Configuration
+        maven 'maven3'     // Igual
     }
 
     stages {
-        stage('Checkout code') {
+
+        stage('Checkout') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'github-token',
                     url: 'https://github.com/neymarjhon-bot/loginapp.git'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                bat "mvn clean install"
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'mvn test'
+                bat "mvn test"
             }
         }
 
         stage('Generate Reports') {
             steps {
-                sh 'mvn surefire-report:report'
+                bat "mvn surefire-report:report"
             }
         }
     }

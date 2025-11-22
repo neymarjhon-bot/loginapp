@@ -8,8 +8,8 @@ public class LoginIncorrectoSteps {
 
     WebDriver driver;
 
-    @Given("que abro el navegador y accedo a la página de login")
-    public void abrirLogin() {
+    @Given("que abro el navegador y accedo a la página de login para credenciales incorrectas")
+    public void abrirLoginIncorrecto() {
         driver = new ChromeDriver();
         driver.get("http://localhost:8080/CtaCorriente/login.jsp");
     }
@@ -24,8 +24,8 @@ public class LoginIncorrectoSteps {
         driver.findElement(By.id("password")).sendKeys(pass);
     }
 
-    @When("presiono el botón de ingresar")
-    public void presionarLogin() {
+    @When("presiono el botón de ingresar con credenciales incorrectas")
+    public void presionarLoginIncorrecto() {
         driver.findElement(By.id("btnLogin")).click();
     }
 

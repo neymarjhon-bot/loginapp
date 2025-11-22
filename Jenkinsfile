@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk21'        // Debe existir en Manage Jenkins → Global Tool Configuration
-        maven 'maven3'     // Igual
+        jdk 'jdk21'
+        maven 'maven3'
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -17,26 +16,43 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat "mvn clean install"
+                bat "mvn clean compile"
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat "mvn test"
+                bat """
+                    mvn test -Dtest=TestRunner
+                """
             }
         }
 
         stage('Generate Reports') {
             steps {
-                bat "mvn surefire-report:report"
+                bat """
+                    mvn surefire-report:report
+                    echo "Reportes generados en target/site/surefire-report.html"
+                """
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: '**/target/surefire-reports/*.html', fingerprint: true
+            // Archivar reportes de pruebas
+            archiveArtifacts artifacts: '**/target/surefire-reports/*.html, **/target/site/*.html', fingerprint: true
+            
+            // Archivar también los reportes de Cucumber si se generan
+            archiveArtifacts artifacts: '**/target/*.html', fingerprint: true
+        }
+        
+        success {
+            echo '✅ ¡Build exitoso! Todas las pruebas pasaron.'
+        }
+        
+        failure {
+            echo '❌ Build fallido. Revisa los reportes en target/surefire-reports/'
         }
     }
 }

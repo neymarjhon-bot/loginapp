@@ -41,11 +41,11 @@
 
         <!-- MySQL JDBC Driver -->
         <dependency>
-    <groupId>mysql</groupId>
+    <groupId>com.mysql</groupId>
     <artifactId>mysql-connector-j</artifactId>
-    <version>8.4.0</version>
+    <version>9.0.0</version>
+</dependency>
 
-        </dependency>
 
         <!-- Selenium (para pruebas automatizadas) -->
         <dependency>
@@ -123,5 +123,6 @@
     </build>
 
 </project>
+
 
 

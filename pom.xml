@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.platinum</groupId>
     <artifactId>CtaCorriente</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -18,55 +17,68 @@
 
     <dependencies>
 
-        <!-- Servlets Jakarta -->
+        <!-- ✔ MySQL CORRECTO -->
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>5.0.0</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Cucumber -->
+        <!-- JSP -->
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JSTL -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <!-- ✔ Selenium -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.22.0</version>
+        </dependency>
+
+        <!-- ✔ Cucumber -->
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>7.15.0</version>
+            <version>7.18.1</version>
         </dependency>
 
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <version>7.15.0</version>
-            <scope>test</scope>
+            <version>7.18.1</version>
         </dependency>
 
-        <!-- Selenium -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>4.19.1</version>
-        </dependency>
-
-        <!-- WebDriverManager (ChromeDriver automático) -->
-        <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>5.8.0</version>
-        </dependency>
-
-        <!-- JUnit -->
+        <!-- ✔ JUnit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
-            <scope>test</scope>
         </dependency>
 
-        <!-- MySQL -->
+        <!-- ✔ Reportes HTML Cucumber -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
+            <groupId>net.masterthought</groupId>
+            <artifactId>maven-cucumber-reporting</artifactId>
+            <version>5.7.0</version>
         </dependency>
 
     </dependencies>
@@ -74,23 +86,54 @@
     <build>
         <plugins>
 
-            <!-- Plugin para Cucumber report -->
+            <!-- Plugin WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+            <!-- Compilador -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+
+            <!-- Ejecutar Cucumber Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Runner.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!-- Generar Reportes HTML -->
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
                 <version>5.7.0</version>
                 <executions>
                     <execution>
-                        <id>execution</id>
+                        <id>cucumber-html-report</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <projectName>CtaCorriente Tests</projectName>
+                            <projectName>CtaCorriente</projectName>
                             <outputDirectory>target/cucumber-report</outputDirectory>
+                            <inputDirectory>target</inputDirectory>
                             <jsonFiles>
-                                <param>target/cucumber.json</param>
+                                <param>**/*.json</param>
                             </jsonFiles>
                         </configuration>
                     </execution>

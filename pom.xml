@@ -41,9 +41,10 @@
 
         <!-- MySQL JDBC Driver -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.4.0</version>
+
         </dependency>
 
         <!-- Selenium (para pruebas automatizadas) -->
@@ -122,4 +123,5 @@
     </build>
 
 </project>
+
 
